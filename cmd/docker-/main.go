@@ -21,8 +21,10 @@ THE SOFTWARE.
 */
 package main
 
-import "docker-/cmd"
+import (
+	"docker-/internal/command"
+)
 
 func main() {
-	cmd.Execute()
+	command.Execute()
 }
