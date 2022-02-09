@@ -22,9 +22,14 @@ THE SOFTWARE.
 package command
 
 import (
-	"os"
-
+	"docker-/internal/command/container"
+	"docker-/internal/command/image"
+	"docker-/internal/command/network"
+	. "docker-/internal/log"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"os"
+	"strconv"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -34,7 +39,17 @@ var rootCmd = &cobra.Command{
 	Long:  `Docker- is a simple version implementation that imitates docker。`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	Run: func(cmd *cobra.Command, args []string) {
+		// print help info
+		_ = cmd.Help()
+	},
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		// global setting logs level
+		debug, _ := strconv.ParseBool(cmd.Flag("debug").Value.String())
+		if debug {
+			Log.SetLevel(logrus.DebugLevel)
+		}
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -47,13 +62,32 @@ func Execute() {
 }
 
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
 
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.docker-.yaml)")
+	// container commands
+	rootCmd.AddCommand(container.ContainerCmd)
+	rootCmd.AddCommand(container.RunCmd)
+	rootCmd.AddCommand(container.InitCmd)
+	rootCmd.AddCommand(container.StartCmd)
+	rootCmd.AddCommand(container.StopCmd)
+	rootCmd.AddCommand(container.RestartCmd)
+	rootCmd.AddCommand(container.ExecCmd)
+	rootCmd.AddCommand(container.LogsCmd)
+	rootCmd.AddCommand(container.RmCmd)
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// image commands
+	rootCmd.AddCommand(image.ImageCmd)
+	rootCmd.AddCommand(image.PullCmd)
+
+	// network commands
+	rootCmd.AddCommand(network.NetworkCmd)
+
+	// common commands
+	rootCmd.AddCommand(ImagesCmd)
+	rootCmd.AddCommand(RmiCmd)
+	rootCmd.AddCommand(PsCmd)
+	rootCmd.AddCommand(inspectCmd)
+	rootCmd.AddCommand(versionCmd)
+
+	// global flag setting
+	rootCmd.PersistentFlags().BoolP("debug", "", false, "debug logs")
 }
