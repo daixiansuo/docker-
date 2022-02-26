@@ -19,7 +19,6 @@ var NetworkCmd = &cobra.Command{
 }
 
 func init() {
-
 	NetworkCmd.AddCommand(createCmd)
 	NetworkCmd.AddCommand(lsCmd)
 	NetworkCmd.AddCommand(rmCmd)

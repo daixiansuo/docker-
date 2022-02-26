@@ -5,35 +5,48 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package network
 
 import (
+	. "docker-/internal/log"
+	"docker-/internal/network"
 	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
 // createCmd represents the create command
 var createCmd = &cobra.Command{
 	Use:   "create",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Create a network",
+	Long:  `Create a network`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return fmt.Errorf("docker- network create requires exactly 1 argument")
+		}
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("create called")
+		if model, err := parse(cmd, args[0]); err != nil {
+			Log.Errorf("docker- create network parse flags %v error %v", cmd.Flags(), err)
+		} else {
+			if err := network.Create(model); err != nil {
+				Log.Errorf("docker- create network %s error %v", args[0], err)
+			}
+		}
 	},
 }
 
 func init() {
+	createCmd.Flags().StringP("subnet", "s", "172.17.0.0/16", "Subnet in CIDR format that represents a network segment")
+	createCmd.Flags().StringP("driver", "d", "bridge", "Driver to manage the Network")
+}
 
-	// Here you will define your flags and configuration settings.
+func parse(cmd *cobra.Command, name string) (*network.CreateModel, error) {
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// createCmd.PersistentFlags().String("foo", "", "A help for foo")
+	subnet := cmd.Flag("subnet").Value.String()
+	driver := cmd.Flag("driver").Value.String()
+	model := &network.CreateModel{
+		Name:   name,
+		Subnet: subnet,
+		Driver: driver,
+	}
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	return model, nil
 }
