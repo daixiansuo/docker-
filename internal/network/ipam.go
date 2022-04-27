@@ -2,6 +2,7 @@ package network
 
 import (
 	"encoding/binary"
+	"fmt"
 	"math"
 	"net"
 )
@@ -41,5 +42,6 @@ func GetIPCount(subnet *net.IPNet) int {
 
 func GetGateway(subnet *net.IPNet) *net.IP {
 
+	fmt.Printf("ss")
 	return nil
 }
